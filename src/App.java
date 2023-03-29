@@ -1,0 +1,45 @@
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.util.List;
+import java.util.Map;
+
+public class App {
+    public static void main(String[] args) throws Exception {
+
+        // fazer uma conexão HTTP e buscar os top 250 filmes
+        String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/MostPopularMovies.json";
+        URI endereco = URI.create(url);
+        var client = HttpClient.newHttpClient();
+        var request = HttpRequest.newBuilder(endereco).GET().build();
+        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+        String body = response.body();
+        System.out.println(body);
+
+        // pegar só os dados que interessam (titulo, poster, classificação)
+        var parser = new JsonParse();
+        List<Map<String, String>> listaDeFilmes = parser.parse(body);
+
+        // exibir e manipular os dados
+        for (int i = 0; i <= 10; i++) {
+            Map<String, String> filme = listaDeFilmes.get(i);
+            System.out.println("\u001b[1m\u001b[31m\u001b[42mTitulo:\u001b[m " + filme.get("title"));
+            System.out.println("\u001b[1m\u001b[32m\u001b[43mURL da Imagem:\u001b[m " + filme.get("image"));
+            double classificacao = Double.parseDouble(filme.get("imDbRating"));
+            int numeroEstrelinhas = (int) classificacao;
+
+            if (numeroEstrelinhas <= 5) {
+                for (int n = 0; n <= numeroEstrelinhas; n++) {
+                    System.out.print("⭐");
+                }
+                System.out.println("\n");
+            } else {
+                System.out.println("🍅");
+
+            }
+        }
+
+    }
+}
